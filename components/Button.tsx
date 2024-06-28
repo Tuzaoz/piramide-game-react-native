@@ -1,25 +1,29 @@
+import { Link } from "expo-router";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export interface ButtonProps {
   title: string;
   onPress: () => void;
+  route?: string;
 }
 
-const Button = ({ title, onPress }: ButtonProps) => {
+const Button = ({ route, title, onPress }: ButtonProps) => {
   return (
     <View>
-      <Pressable
-        onPress={onPress}
-        style={({ pressed }) => [
-          {
-            backgroundColor: pressed ? "#451ca5" : "#5731b1",
-          },
-          styles.buttonContainer,
-        ]}
-      >
-        <Text style={styles.text}> {title} </Text>
-      </Pressable>
+      <Link href="/create-players" asChild>
+        <Pressable
+          // onPress={onPress}
+          style={({ pressed }) => [
+            {
+              backgroundColor: pressed ? "#451ca5" : "#5731b1",
+            },
+            styles.buttonContainer,
+          ]}
+        >
+          <Text style={styles.text}> {title} </Text>
+        </Pressable>
+      </Link>
     </View>
   );
 };
