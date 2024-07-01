@@ -4,41 +4,34 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export interface ButtonProps {
   title: string;
-  onPress: () => void;
+  onPress: any;
   route?: string;
+  buttonStyle?: any;
+  textStyle?: any;
 }
 
-const Button = ({ route, title, onPress }: ButtonProps) => {
+const Button = ({
+  route,
+  title,
+  onPress,
+  buttonStyle,
+  textStyle,
+}: ButtonProps) => {
   return (
     <View>
-      <Link href="/create-players" asChild>
-        <Pressable
-          // onPress={onPress}
-          style={({ pressed }) => [
-            {
-              backgroundColor: pressed ? "#451ca5" : "#5731b1",
-            },
-            styles.buttonContainer,
-          ]}
-        >
-          <Text style={styles.text}> {title} </Text>
-        </Pressable>
-      </Link>
+      <Pressable
+        onPress={onPress}
+        style={({ pressed }) => [
+          {
+            backgroundColor: pressed ? "#451ca5" : "#5731b1",
+          },
+          buttonStyle,
+        ]}
+      >
+        <Text style={textStyle}> {title} </Text>
+      </Pressable>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  buttonContainer: {
-    padding: 10,
-    width: 100,
-    alignItems: "center",
-    borderRadius: 10,
-  },
-  text: {
-    fontSize: 20,
-    color: "#fff",
-  },
-});
 
 export default Button;
