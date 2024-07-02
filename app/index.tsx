@@ -5,13 +5,14 @@ import Button from "@/components/Button";
 import { Link } from "expo-router";
 import CreatePlayer from "@/components/create-player";
 import { embaralharBaralho, gerarBaralho } from "@/utils/gerar-baralho";
+import Entrance from "@/components/entrance";
 export type Player = {
   id: string;
   name: string;
   hand: any[];
   drinkCount: number;
 };
-type Game = {
+export type Game = {
   players: Player[];
   currentPlayer?: Player;
   deck: any[];
@@ -33,7 +34,7 @@ const Index = () => {
   const [game, setGame] = React.useState<Game>({
     players: players,
     deck: baralhoEmbaralhado,
-    stage: "homeScreen",
+    stage: "entrance1",
   });
 
   const handleChangeStage = (stage: Game["stage"]) => {
@@ -72,6 +73,15 @@ const Index = () => {
             handleStage={handleChangeStage}
           />
         )}
+        {game.stage.slice(0, -1) === "entrance" && (
+          <Entrance
+            players={players}
+            game={game}
+            deck={baralho}
+            setGame={setGame}
+            setPlayers={setPlayers}
+          />
+        )}
       </ImageBackground>
     </>
   );
@@ -81,6 +91,20 @@ const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
     resizeMode: "cover", // or 'stretch'
+  },
+   buttonContainer: {
+    marginTop: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  toggleButton: {
+    backgroundColor: "#b58df1",
+    padding: 12,
+    borderRadius: 48,
+  },
+  toggleButtonText: {
+    color: "#fff",
+    textAlign: "center",
   },
   container: {
     flex: 1,

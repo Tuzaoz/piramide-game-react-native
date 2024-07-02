@@ -14,7 +14,7 @@ type Valor =
   | "12"
   | "13";
 
-interface Carta {
+export interface Carta {
   valor: Valor;
   naipe: Naipe;
 }
