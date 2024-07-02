@@ -29,25 +29,28 @@ function cardHandler(card: Carta) {
   switch (card.naipe) {
     case "Copas":
       cardRenderAttributes["cardComponent"] = (
-        <HearthsSvg height={30} width={30} />
+        <HearthsSvg height={40} width={40} />
       );
       cardRenderAttributes["color"] = "#ff291a";
+      break;
     case "Ouros":
       cardRenderAttributes["cardComponent"] = (
-        <DiamondsSvgComponent height={30} width={30} />
+        <DiamondsSvgComponent height={40} width={40} />
       );
       cardRenderAttributes["color"] = "#ff291a";
-
+      break;
     case "Paus":
       cardRenderAttributes["cardComponent"] = (
-        <ClubsSvgComponent height={30} width={30} />
+        <ClubsSvgComponent height={40} width={40} />
       );
       cardRenderAttributes["color"] = "#000";
+      break;
     case "Espadas":
       cardRenderAttributes["cardComponent"] = (
-        <SpadesSvgComponent height={30} width={30} />
+        <SpadesSvgComponent height={40} width={40} />
       );
       cardRenderAttributes["color"] = "#000";
+      break;
   }
   return cardRenderAttributes;
 }
@@ -61,7 +64,7 @@ export const FlipCard = ({
   card,
 }) => {
   const isDirectionX = direction === "x";
-  const [cardAttribute, setCardAttribute] = useState({});
+  const cardAttribute = cardHandler(card);
   const regularCardAnimatedStyle = useAnimatedStyle(() => {
     const spinValue = interpolate(Number(isFlipped.value), [0, 1], [0, 180]);
     const rotateValue = withTiming(`${spinValue}deg`, { duration });
@@ -83,9 +86,7 @@ export const FlipCard = ({
       ],
     };
   });
-  useEffect(() => {
-    setCardAttribute(cardHandler(card));
-  }, [card]);
+
   return (
     <View>
       <Animated.View
