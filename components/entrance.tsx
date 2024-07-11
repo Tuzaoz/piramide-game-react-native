@@ -3,36 +3,48 @@ import React, { useEffect } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSharedValue } from "react-native-reanimated";
 import { FlipCard } from "./rotate";
+import EntranceButtons from "./entrance-buttons";
 
 export interface EntranceProps {
   game: Game;
   players: Player[];
-  deck: any[];
   setGame: any;
   setPlayers: any;
 }
 
-const Entrance = ({
-  game,
-  players,
-  deck,
-  setGame,
-  setPlayers,
-}: EntranceProps) => {
+const Entrance = ({ game, players, setGame, setPlayers }: EntranceProps) => {
   const isFlipped = useSharedValue(false);
+  const { deck, currentPlayer } = game;
 
+  let entrance = 1;
   const handlePress = () => {
     isFlipped.value = !isFlipped.value;
     if (!isFlipped.value) {
       new Promise((resolve) => setTimeout(resolve, 500));
-      setGame((currentGame: Game) => {
-        return {
-          ...currentGame,
-          deck: deck.slice(1),
-        };
-      });
+
+      if (players.indexOf(currentPlayer) === players.length - 1) {
+        setGame((currentGame: Game) => {
+          return {
+            ...currentGame,
+            players: players[players.indexOf(currentPlayer)].hand.push(deck[0]),
+            currentPlayer: players[0],
+            deck: deck.slice(1),
+            stage: `entrance${(entrance += 1)}`,
+          };
+        });
+      } else {
+        setGame((currentGame: Game) => {
+          return {
+            ...currentGame,
+            players: players[players.indexOf(currentPlayer)].hand.push(deck[0]),
+            deck: deck.slice(1),
+            currentPlayer: players[players.indexOf(currentPlayer) + 1],
+          };
+        });
+      }
     }
   };
+
   useEffect(() => {
     setGame((currentGame: Game) => {
       return {
@@ -42,7 +54,6 @@ const Entrance = ({
       };
     });
   }, []);
-
   return (
     <View style={styles.container}>
       <Text>{game?.currentPlayer?.name}</Text>
@@ -53,10 +64,16 @@ const Entrance = ({
         card={game.deck[0]}
       />
       <View style={styles.buttonContainer}>
+        <EntranceButtons
+          entrance={game.stage}
+          onPress={handlePress}
+          card={deck[0]}
+        />
         <Pressable style={styles.toggleButton} onPress={handlePress}>
           <Text style={styles.toggleButtonText}>Toggle card</Text>
         </Pressable>
       </View>
+      
     </View>
   );
 };

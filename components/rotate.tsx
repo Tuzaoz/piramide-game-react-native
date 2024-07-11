@@ -25,8 +25,7 @@ function cardHandler(card: Carta) {
     color?: string;
     cardComponent?: React.ReactNode;
   } = {};
-  console.log(card);
-  switch (card.naipe) {
+  switch (card?.naipe) {
     case "Copas":
       cardRenderAttributes["cardComponent"] = (
         <HearthsSvg height={40} width={40} />

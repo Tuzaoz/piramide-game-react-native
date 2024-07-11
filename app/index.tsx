@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Image, ImageBackground, StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import Button from "@/components/Button";
@@ -14,7 +14,7 @@ export type Player = {
 };
 export type Game = {
   players: Player[];
-  currentPlayer?: Player;
+  currentPlayer: Player;
   deck: any[];
   stage:
     | "homeScreen"
@@ -28,15 +28,17 @@ export type Game = {
 };
 
 const Index = () => {
-  const [players, setPlayers] = React.useState<Player[]>([]);
+  const [players, setPlayers] = React.useState<Player[]>([
+    { id: "1", name: "Jogador 1", hand: [], drinkCount: 0 },
+  ]);
   const baralho = gerarBaralho();
   const baralhoEmbaralhado = embaralharBaralho(baralho);
   const [game, setGame] = React.useState<Game>({
     players: players,
     deck: baralhoEmbaralhado,
     stage: "entrance1",
+    currentPlayer: players[0],
   });
-
   const handleChangeStage = (stage: Game["stage"]) => {
     setGame((currentGame: Game) => {
       return {
@@ -45,6 +47,7 @@ const Index = () => {
       };
     });
   };
+
   return (
     <>
       <ImageBackground
@@ -77,7 +80,6 @@ const Index = () => {
           <Entrance
             players={players}
             game={game}
-            deck={baralho}
             setGame={setGame}
             setPlayers={setPlayers}
           />
@@ -92,7 +94,7 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: "cover", // or 'stretch'
   },
-   buttonContainer: {
+  buttonContainer: {
     marginTop: 16,
     justifyContent: "center",
     alignItems: "center",
