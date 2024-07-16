@@ -61,9 +61,12 @@ export const FlipCard = ({
   duration = 500,
   FlippedContent,
   card,
-}) => {
+  fadeIn,
+  fadeOut,
+}: any) => {
   const isDirectionX = direction === "x";
   const cardAttribute = cardHandler(card);
+
   const regularCardAnimatedStyle = useAnimatedStyle(() => {
     const spinValue = interpolate(Number(isFlipped.value), [0, 1], [0, 180]);
     const rotateValue = withTiming(`${spinValue}deg`, { duration });
@@ -71,7 +74,13 @@ export const FlipCard = ({
     return {
       transform: [
         isDirectionX ? { rotateX: rotateValue } : { rotateY: rotateValue },
+        fadeOut.value
+          ? { translateY: withTiming(100, { duration: 500 }) }
+          : { translateY: 0 },
       ],
+      opacity: fadeIn.value
+        ? withTiming(1, { duration: 500 })
+        : withTiming(0, { duration: 500 }),
     };
   });
 
@@ -83,6 +92,20 @@ export const FlipCard = ({
       transform: [
         isDirectionX ? { rotateX: rotateValue } : { rotateY: rotateValue },
       ],
+      opacity: fadeIn.value
+        ? withTiming(1, { duration: 500 })
+        : withTiming(0, { duration: 500 }),
+    };
+  });
+
+  const fadeOutStyle = useAnimatedStyle(() => {
+    return {
+      opacity: fadeOut.value
+        ? withTiming(0, { duration: 500 })
+        : withTiming(1, { duration: 500 }),
+      transform: fadeOut.value
+        ? [{ translateY: withTiming(100, { duration: 500 }) }]
+        : [{ translateY: 0 }],
     };
   });
 
@@ -93,6 +116,7 @@ export const FlipCard = ({
           flipCardStyles.regularCard,
           cardStyle,
           regularCardAnimatedStyle,
+          fadeOutStyle,
         ]}
       >
         <LinearGradient
@@ -107,6 +131,7 @@ export const FlipCard = ({
           flipCardStyles.flippedCard,
           cardStyle,
           flippedCardAnimatedStyle,
+          fadeOutStyle,
         ]}
       >
         <View style={flipCardStyles.cardStylefront}>

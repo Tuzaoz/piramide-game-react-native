@@ -1,9 +1,10 @@
 import { Game, Player } from "@/app";
-import React, { useEffect } from "react";
+import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSharedValue } from "react-native-reanimated";
 import { FlipCard } from "./rotate";
 import EntranceButtons from "./entrance-buttons";
+import Card from "./card";
 
 export interface EntranceProps {
   game: Game;
@@ -14,9 +15,50 @@ export interface EntranceProps {
 
 const Entrance = ({ game, players, setGame, setPlayers }: EntranceProps) => {
   const isFlipped = useSharedValue(false);
-  const { deck, currentPlayer } = game;
+  const fadeIn = useSharedValue(true);
+  const fadeOut = useSharedValue(false);
+  const [hasFlipped, setHasFlipped] = useState(false);
 
+  const { deck, currentPlayer } = game;
+  const [playingCard, setPlayingCard] = useState(deck[0]);
+  const [isDisabledButtons, setisDisabledButtons] = useState(false);
   let entrance = 1;
+  const handleFlip = () => {
+    if (!hasFlipped) {
+      isFlipped.value = !isFlipped.value;
+      setHasFlipped(true);
+    }
+  };
+
+  const handleNextPlayer = () => {
+    setGame((currentGame: Game) => {
+      return {
+        ...currentGame,
+        currentPlayer: players[players.indexOf(currentPlayer) + 1],
+      };
+    });
+  };
+  const handleAddCard = () => {
+    setGame((currentGame: Game) => {
+      return {
+        ...currentGame,
+        players: players[players.indexOf(currentPlayer)].hand.push(deck[0]),
+        deck: deck.slice(1),
+      };
+    });
+  };
+  const handleAfterResult = () => {
+    handleAddCard();
+    fadeOut.value = true;
+    new Promise((resolve) => setTimeout(resolve, 1000)).then(() => {
+      handleNextPlayer();
+      fadeOut.value = false;
+      fadeIn.value = true;
+      handleFlip();
+      setHasFlipped(false); // Reset the flip state for the next card
+    });
+  };
+
   const handlePress = () => {
     isFlipped.value = !isFlipped.value;
     if (!isFlipped.value) {
@@ -54,6 +96,11 @@ const Entrance = ({ game, players, setGame, setPlayers }: EntranceProps) => {
       };
     });
   }, []);
+
+  useEffect(() => {
+    setPlayingCard(deck[0]);
+  }, [deck]);
+
   return (
     <View style={styles.container}>
       <Text>{game?.currentPlayer?.name}</Text>
@@ -61,24 +108,41 @@ const Entrance = ({ game, players, setGame, setPlayers }: EntranceProps) => {
         isFlipped={isFlipped}
         cardStyle={{ width: 194, height: 300 }}
         FlippedContent={<Text>legal</Text>}
-        card={game.deck[0]}
+        card={playingCard}
+        fadeIn={fadeIn}
+        fadeOut={fadeOut}
       />
       <View style={styles.buttonContainer}>
         <EntranceButtons
           entrance={game.stage}
-          onPress={handlePress}
-          card={deck[0]}
+          onPress={handleFlip}
+          card={playingCard}
+          handleAfterResult={handleAfterResult}
         />
-        <Pressable style={styles.toggleButton} onPress={handlePress}>
-          <Text style={styles.toggleButtonText}>Toggle card</Text>
-        </Pressable>
       </View>
-      
+      <View style={styles.handContainer}>
+        {players[players.indexOf(currentPlayer)]?.hand?.map((card) => (
+          <Card card={card} cardStyle={{ width: 97, height: 150 }} />
+        ))}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  handContainer: {
+    flexDirection: "row",
+    justifyContent: "space-evenly", // Add this line to evenly space the children
+    alignItems: "center",
+    backgroundColor: "#ad8c4fa3",
+    width: "95%",
+    minHeight: 160,
+    borderWidth: 2,
+    padding: 10,
+    borderColor: "#fff",
+    borderRadius: 10,
+    margin: 20,
+  },
   buttonContainer: {
     marginTop: 16,
     justifyContent: "center",

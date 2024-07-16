@@ -36,7 +36,7 @@ const Index = () => {
   const [game, setGame] = React.useState<Game>({
     players: players,
     deck: baralhoEmbaralhado,
-    stage: "entrance1",
+    stage: "homeScreen",
     currentPlayer: players[0],
   });
   const handleChangeStage = (stage: Game["stage"]) => {

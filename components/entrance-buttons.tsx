@@ -1,27 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import Button from "./Button";
 import Entrance from "./entrance";
 import { Carta } from "@/utils/gerar-baralho";
+import ResultModal from "./result-modal";
+
+interface EntranceButtonsProps {
+  entrance: string;
+  onPress: () => void;
+  card: Carta;
+  handleAfterResult: () => void;
+}
 
 const EntranceButtons = ({
   entrance,
   onPress,
   card,
-}: {
-  entrance: string;
-  onPress: () => void;
-  card: Carta;
-}) => {
+  handleAfterResult,
+}: EntranceButtonsProps) => {
+  const [modal, setModal] = useState({ visible: false, type: "" });
+
   const handlePress1 = (value: string) => {
+    onPress();
     const cardColor =
       card.naipe === "Copas" || card.naipe === "Ouros" ? "Vermelha" : "Preta";
-    if (value === cardColor) {
-      Alert.alert("Acertou!");
-    } else {
-      Alert.alert("Errou!");
-    }
-    onPress();
+
+    setModal({ visible: true, type: cardColor === value ? "win" : "lose" });
   };
 
   const entranceButtonsObj = {
@@ -31,13 +35,13 @@ const EntranceButtons = ({
           buttonStyle={e1Styles.buttonContainer}
           textStyle={e1Styles.ButtonText}
           title="Preta"
-          onPress={handlePress1("Preta")}
+          onPress={() => handlePress1("Preta")}
         />
         <Button
           buttonStyle={e1Styles.buttonContainer}
           textStyle={e1Styles.ButtonText}
           title="Vermelha"
-          onPress={handlePress1("Vermelha")}
+          onPress={() => handlePress1("Vermelha")}
         />
       </View>
     ),
@@ -53,7 +57,19 @@ const EntranceButtons = ({
     // ),
   };
 
-  return entranceButtonsObj[entrance] || null;
+  return (
+    <>
+      {modal.visible ? (
+        <ResultModal
+          type={modal.type}
+          setMessageVisible={setModal}
+          onPress={handleAfterResult}
+        />
+      ) : (
+        entranceButtonsObj[entrance] || null
+      )}
+    </>
+  );
 };
 
 const e1Styles = StyleSheet.create({

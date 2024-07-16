@@ -1,6 +1,6 @@
 type Naipe = "Copas" | "Ouros" | "Paus" | "Espadas";
 type Valor =
-  | "A"
+  | "1"
   | "2"
   | "3"
   | "4"
@@ -21,7 +21,7 @@ export interface Carta {
 
 const naipes: Naipe[] = ["Copas", "Ouros", "Paus", "Espadas"];
 const valores: Valor[] = [
-  "A",
+  "1",
   "2",
   "3",
   "4",
