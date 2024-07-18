@@ -14,21 +14,19 @@ const ResultModal = ({
   const message = type === "win" ? "Acertou! Salvo" : "Errou! Beba!";
   const handlePress = () => {
     setMessageVisible({ visible: false, type: "" });
-    
+
     onPress();
   };
 
   return (
-    <View style={styles.centeredView}>
-      <View style={styles.modalView}>
-        <Text style={styles.modalText}>{message}</Text>
-        <Pressable
-          style={[styles.button, styles.buttonClose]}
-          onPress={handlePress}
-        >
-          <Text style={styles.textStyle}>Continuar</Text>
-        </Pressable>
-      </View>
+    <View style={styles.modalView}>
+      <Text style={styles.modalText}>{message}</Text>
+      <Pressable
+        style={[styles.button, styles.buttonClose]}
+        onPress={handlePress}
+      >
+        <Text style={styles.textStyle}>Continuar</Text>
+      </Pressable>
     </View>
   );
 };
@@ -37,7 +35,7 @@ const styles = StyleSheet.create({
   centeredView: {
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 22,
+    marginTop: 10,
   },
   modalView: {
     margin: 20,
@@ -59,9 +57,7 @@ const styles = StyleSheet.create({
     padding: 10,
     elevation: 2,
   },
-  buttonOpen: {
-    backgroundColor: "#F194FF",
-  },
+
   buttonClose: {
     backgroundColor: "#2196F3",
   },
@@ -73,6 +69,7 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: "center",
+    fontSize: 24,
   },
 });
 

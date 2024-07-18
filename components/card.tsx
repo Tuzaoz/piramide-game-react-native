@@ -52,6 +52,9 @@ function cardHandler(card: Carta) {
     case "1":
       cardRenderAttributes["valor"] = "A";
       break;
+    default:
+      cardRenderAttributes["valor"] = card?.valor;
+      break;
   }
   return cardRenderAttributes;
 }

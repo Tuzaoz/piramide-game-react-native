@@ -24,6 +24,7 @@ function cardHandler(card: Carta) {
   const cardRenderAttributes: {
     color?: string;
     cardComponent?: React.ReactNode;
+    valor?: string;
   } = {};
   switch (card?.naipe) {
     case "Copas":
@@ -51,6 +52,23 @@ function cardHandler(card: Carta) {
       cardRenderAttributes["color"] = "#000";
       break;
   }
+  switch (card?.valor) {
+    case "13":
+      cardRenderAttributes["valor"] = "K";
+      break;
+    case "12":
+      cardRenderAttributes["valor"] = "Q";
+      break;
+    case "11":
+      cardRenderAttributes["valor"] = "J";
+      break;
+    case "1":
+      cardRenderAttributes["valor"] = "A";
+      break;
+    default:
+      cardRenderAttributes["valor"] = card?.valor;
+      break;
+  }
   return cardRenderAttributes;
 }
 
@@ -74,13 +92,8 @@ export const FlipCard = ({
     return {
       transform: [
         isDirectionX ? { rotateX: rotateValue } : { rotateY: rotateValue },
-        fadeOut.value
-          ? { translateY: withTiming(100, { duration: 500 }) }
-          : { translateY: 0 },
       ],
-      opacity: fadeIn.value
-        ? withTiming(1, { duration: 500 })
-        : withTiming(0, { duration: 500 }),
+      opacity: fadeOut.value ? 1 : 1,
     };
   });
 
@@ -92,9 +105,7 @@ export const FlipCard = ({
       transform: [
         isDirectionX ? { rotateX: rotateValue } : { rotateY: rotateValue },
       ],
-      opacity: fadeIn.value
-        ? withTiming(1, { duration: 500 })
-        : withTiming(0, { duration: 500 }),
+      opacity: fadeOut.value ? 1 : 1,
     };
   });
 
@@ -108,15 +119,23 @@ export const FlipCard = ({
         : [{ translateY: 0 }],
     };
   });
+  const fadeOutFlippedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: fadeOut.value ? 0 : withTiming(1, { duration: 500 }),
+      transform: fadeOut.value
+        ? [{ translateY: withTiming(100, { duration: 500 }) }]
+        : [{ translateY: 0 }],
+    };
+  });
 
   return (
     <View>
       <Animated.View
         style={[
+          fadeOutFlippedStyle,
           flipCardStyles.regularCard,
           cardStyle,
           regularCardAnimatedStyle,
-          fadeOutStyle,
         ]}
       >
         <LinearGradient
@@ -128,10 +147,11 @@ export const FlipCard = ({
       </Animated.View>
       <Animated.View
         style={[
+          fadeOutStyle,
+          fadeOutFlippedStyle,
           flipCardStyles.flippedCard,
           cardStyle,
           flippedCardAnimatedStyle,
-          fadeOutStyle,
         ]}
       >
         <View style={flipCardStyles.cardStylefront}>
@@ -144,7 +164,7 @@ export const FlipCard = ({
               }}
             >
               <Text style={{ fontSize: 30, color: cardAttribute.color }}>
-                {card.valor}
+                {cardAttribute.valor}
               </Text>
               {cardAttribute.cardComponent}
             </View>
@@ -170,7 +190,7 @@ export const FlipCard = ({
                   transform: [{ rotate: "180deg" }],
                 }}
               >
-                {card.valor}
+                {cardAttribute.valor}
               </Text>
             </View>
           </View>
@@ -184,6 +204,13 @@ const flipCardStyles = StyleSheet.create({
   regularCard: {
     position: "absolute",
     zIndex: 1,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   flippedCard: {
     backfaceVisibility: "hidden",

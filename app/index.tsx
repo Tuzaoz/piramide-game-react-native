@@ -30,13 +30,14 @@ export type Game = {
 const Index = () => {
   const [players, setPlayers] = React.useState<Player[]>([
     { id: "1", name: "Jogador 1", hand: [], drinkCount: 0 },
+    { id: "2", name: "Jogador 2", hand: [], drinkCount: 0 },
   ]);
   const baralho = gerarBaralho();
   const baralhoEmbaralhado = embaralharBaralho(baralho);
   const [game, setGame] = React.useState<Game>({
     players: players,
     deck: baralhoEmbaralhado,
-    stage: "homeScreen",
+    stage: "entrance1",
     currentPlayer: players[0],
   });
   const handleChangeStage = (stage: Game["stage"]) => {

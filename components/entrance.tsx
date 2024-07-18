@@ -1,7 +1,11 @@
 import { Game, Player } from "@/app";
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { useSharedValue } from "react-native-reanimated";
+import {
+  useSharedValue,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 import { FlipCard } from "./rotate";
 import EntranceButtons from "./entrance-buttons";
 import Card from "./card";
@@ -15,76 +19,78 @@ export interface EntranceProps {
 
 const Entrance = ({ game, players, setGame, setPlayers }: EntranceProps) => {
   const isFlipped = useSharedValue(false);
-  const fadeIn = useSharedValue(true);
+  const fadeIn = useSharedValue(false);
   const fadeOut = useSharedValue(false);
-  const [hasFlipped, setHasFlipped] = useState(false);
 
   const { deck, currentPlayer } = game;
-  const [playingCard, setPlayingCard] = useState(deck[0]);
+  const playingCard = deck[0];
   const [isDisabledButtons, setisDisabledButtons] = useState(false);
-  let entrance = 1;
-  const handleFlip = () => {
-    if (!hasFlipped) {
+  const [entrance, setEntrance] = useState(1);
+
+  const handleFlip1 = () => {
+    if (isFlipped.value) {
+      fadeOut.value = true;
       isFlipped.value = !isFlipped.value;
-      setHasFlipped(true);
+      return;
     }
   };
 
-  const handleNextPlayer = () => {
-    setGame((currentGame: Game) => {
-      return {
-        ...currentGame,
-        currentPlayer: players[players.indexOf(currentPlayer) + 1],
-      };
-    });
+  const handleFlip = () => {
+    isFlipped.value = !isFlipped.value;
   };
+
+  const handleNextPlayer = () => {
+    if (players.indexOf(currentPlayer) === players.length - 1) {
+      setEntrance((prevEntrance) => {
+        const newEntrance = prevEntrance + 1;
+
+        setGame((currentGame: Game) => {
+          return {
+            ...currentGame,
+            currentPlayer: players[0],
+            deck: deck.slice(1),
+            stage: `entrance${newEntrance}`, // Use the updated entrance value
+          };
+        });
+
+        return newEntrance; // Update the entrance state
+      });
+    } else {
+      setGame((currentGame: Game) => {
+        return {
+          ...currentGame,
+          currentPlayer: players[players.indexOf(currentPlayer) + 1],
+          deck: deck.slice(1),
+        };
+      });
+    }
+  };
+
   const handleAddCard = () => {
     setGame((currentGame: Game) => {
       return {
         ...currentGame,
         players: players[players.indexOf(currentPlayer)].hand.push(deck[0]),
-        deck: deck.slice(1),
       };
     });
   };
-  const handleAfterResult = () => {
+  const handleAfterResult = async () => {
+    setisDisabledButtons(true);
     handleAddCard();
-    fadeOut.value = true;
-    new Promise((resolve) => setTimeout(resolve, 1000)).then(() => {
+    handleFlip1();
+    handleFlip();
+    await new Promise((resolve) => setTimeout(resolve, 1000)).then(() => {
       handleNextPlayer();
       fadeOut.value = false;
-      fadeIn.value = true;
-      handleFlip();
-      setHasFlipped(false); // Reset the flip state for the next card
     });
+    setisDisabledButtons(false);
   };
 
-  const handlePress = () => {
-    isFlipped.value = !isFlipped.value;
-    if (!isFlipped.value) {
-      new Promise((resolve) => setTimeout(resolve, 500));
-
-      if (players.indexOf(currentPlayer) === players.length - 1) {
-        setGame((currentGame: Game) => {
-          return {
-            ...currentGame,
-            players: players[players.indexOf(currentPlayer)].hand.push(deck[0]),
-            currentPlayer: players[0],
-            deck: deck.slice(1),
-            stage: `entrance${(entrance += 1)}`,
-          };
-        });
-      } else {
-        setGame((currentGame: Game) => {
-          return {
-            ...currentGame,
-            players: players[players.indexOf(currentPlayer)].hand.push(deck[0]),
-            deck: deck.slice(1),
-            currentPlayer: players[players.indexOf(currentPlayer) + 1],
-          };
-        });
-      }
-    }
+  const handleDrinkCounter = () => {
+    setPlayers((currentPlayers: Player[]) => {
+      currentPlayers[players.indexOf(currentPlayer)].drinkCount += 1;
+      return currentPlayers;
+    });
   };
 
   useEffect(() => {
@@ -97,13 +103,14 @@ const Entrance = ({ game, players, setGame, setPlayers }: EntranceProps) => {
     });
   }, []);
 
-  useEffect(() => {
-    setPlayingCard(deck[0]);
-  }, [deck]);
-
   return (
     <View style={styles.container}>
-      <Text>{game?.currentPlayer?.name}</Text>
+      <View style={styles.playerNameContainer}>
+        <Text style={styles.playerName}>{game?.currentPlayer?.name}</Text>
+        <Text style={styles.playerName}>
+          {game?.currentPlayer?.drinkCount + " 🥃"}
+        </Text>
+      </View>
       <FlipCard
         isFlipped={isFlipped}
         cardStyle={{ width: 194, height: 300 }}
@@ -118,11 +125,18 @@ const Entrance = ({ game, players, setGame, setPlayers }: EntranceProps) => {
           onPress={handleFlip}
           card={playingCard}
           handleAfterResult={handleAfterResult}
+          handeDrinkCounter={handleDrinkCounter}
+          isDisabledButtons={isDisabledButtons}
+          player={currentPlayer}
         />
       </View>
       <View style={styles.handContainer}>
-        {players[players.indexOf(currentPlayer)]?.hand?.map((card) => (
-          <Card card={card} cardStyle={{ width: 97, height: 150 }} />
+        {players[players.indexOf(currentPlayer)]?.hand?.map((card, i) => (
+          <Card
+            key={card.valor + card.naipe + i}
+            card={card}
+            cardStyle={{ width: 97, height: 150 }}
+          />
         ))}
       </View>
     </View>
@@ -163,7 +177,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
+  playerNameContainer: {
+    backgroundColor: "#5d0098",
+    width: "50%",
+    padding: 10,
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderRadius: 10,
+    borderColor: "#fff",
+    borderWidth: 2,
+  },
   cardStyleBack: {
     marginTop: 20,
     width: 194,
@@ -181,6 +205,10 @@ const styles = StyleSheet.create({
   },
   questionMark: {
     fontSize: 100,
+    color: "#fff",
+  },
+  playerName: {
+    fontSize: 24,
     color: "#fff",
   },
 });
