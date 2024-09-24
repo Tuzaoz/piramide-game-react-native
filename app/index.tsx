@@ -6,6 +6,7 @@ import { Link } from "expo-router";
 import CreatePlayer from "@/components/create-player";
 import { embaralharBaralho, gerarBaralho } from "@/utils/gerar-baralho";
 import Entrance from "@/components/entrance";
+import Pyramid from "@/components/pyramid-fase";
 export type Player = {
   id: string;
   name: string;
@@ -28,16 +29,13 @@ export type Game = {
 };
 
 const Index = () => {
-  const [players, setPlayers] = React.useState<Player[]>([
-    { id: "1", name: "Jogador 1", hand: [], drinkCount: 0 },
-    { id: "2", name: "Jogador 2", hand: [], drinkCount: 0 },
-  ]);
+  const [players, setPlayers] = React.useState<Player[]>([]);
   const baralho = gerarBaralho();
   const baralhoEmbaralhado = embaralharBaralho(baralho);
   const [game, setGame] = React.useState<Game>({
     players: players,
     deck: baralhoEmbaralhado,
-    stage: "entrance1",
+    stage: "homeScreen",
     currentPlayer: players[0],
   });
   const handleChangeStage = (stage: Game["stage"]) => {
@@ -79,6 +77,14 @@ const Index = () => {
         )}
         {game.stage.slice(0, -1) === "entrance" && (
           <Entrance
+            players={players}
+            game={game}
+            setGame={setGame}
+            setPlayers={setPlayers}
+          />
+        )}
+        {game.stage === "hell" && (
+          <Pyramid
             players={players}
             game={game}
             setGame={setGame}

@@ -17,13 +17,13 @@ export interface EntranceProps {
   setPlayers: any;
 }
 
-const Entrance = ({ game, players, setGame, setPlayers }: EntranceProps) => {
+const Pyramid = ({ game, players, setGame, setPlayers }: EntranceProps) => {
   const isFlipped = useSharedValue(false);
   const fadeIn = useSharedValue(false);
   const fadeOut = useSharedValue(false);
 
   const { deck, currentPlayer } = game;
-  const playingCard = deck[0];
+  const playingCards = deck.slice(0, 3);
   const [isDisabledButtons, setisDisabledButtons] = useState(false);
   const [entrance, setEntrance] = useState(1);
 
@@ -43,13 +43,13 @@ const Entrance = ({ game, players, setGame, setPlayers }: EntranceProps) => {
     if (players.indexOf(currentPlayer) === players.length - 1) {
       setEntrance((prevEntrance) => {
         const newEntrance = prevEntrance + 1;
-        console.log("newEntrance", newEntrance);
+
         setGame((currentGame: Game) => {
           return {
             ...currentGame,
             currentPlayer: players[0],
             deck: deck.slice(1),
-            stage: newEntrance > 4 ? "hell" : `entrance${newEntrance}`,
+            stage: newEntrance >= 4 ? "hell" : `entrance${newEntrance}`,
           };
         });
 
@@ -93,51 +93,37 @@ const Entrance = ({ game, players, setGame, setPlayers }: EntranceProps) => {
     });
   };
 
-  useEffect(() => {
-    setGame((currentGame: Game) => {
-      return {
-        ...currentGame,
-        currentPlayer: players[0],
-      };
-    });
-  }, []);
-
   return (
     <View style={styles.container}>
-      <View style={styles.playerNameContainer}>
-        <Text style={styles.playerName}>{game?.currentPlayer?.name}</Text>
-        <Text style={styles.playerName}>
-          {game?.currentPlayer?.drinkCount + " 🥃"}
-        </Text>
-      </View>
-      <FlipCard
-        isFlipped={isFlipped}
-        cardStyle={{ width: 194, height: 300 }}
-        FlippedContent={<Text>legal</Text>}
-        card={playingCard}
-        fadeIn={fadeIn}
-        fadeOut={fadeOut}
-      />
-      <View style={styles.buttonContainer}>
-        <EntranceButtons
-          entrance={game.stage}
-          onPress={handleFlip}
-          card={playingCard}
-          handleAfterResult={handleAfterResult}
-          handeDrinkCounter={handleDrinkCounter}
-          isDisabledButtons={isDisabledButtons}
-          player={currentPlayer}
-        />
-      </View>
-      <View style={styles.handContainer}>
-        {players[players.indexOf(currentPlayer)]?.hand?.map((card, i) => (
-          <Card
-            key={card.valor + card.naipe + i}
-            card={card}
+      <View style={styles.cardsContainer}>
+        {playingCards.map((playingCard) => (
+          <FlipCard
+            isFlipped={isFlipped}
             cardStyle={{ width: 97, height: 150 }}
+            FlippedContent={<Text>legal</Text>}
+            card={playingCard}
+            fadeIn={fadeIn}
+            fadeOut={fadeOut}
           />
         ))}
       </View>
+      {players.map((player) => (
+        <>
+          <View style={styles.playerNameContainer}>
+            <Text style={styles.playerName}>{player?.name}</Text>
+            <Text style={styles.playerName}>{player?.drinkCount + " 🥃"}</Text>
+          </View>
+          <View style={styles.handContainer}>
+            {players[players.indexOf(currentPlayer)]?.hand?.map((card, i) => (
+              <Card
+                key={card.valor + card.naipe + i}
+                card={card}
+                cardStyle={{ width: 45, height: 75 }}
+              />
+            ))}
+          </View>
+        </>
+      ))}
     </View>
   );
 };
@@ -149,18 +135,29 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#ad8c4fa3",
     width: "95%",
-    minHeight: 160,
     borderWidth: 2,
     padding: 10,
     borderColor: "#fff",
     borderRadius: 10,
     margin: 20,
   },
+
+  cardsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    width: "95%",
+    minHeight: 160,
+    padding: 10,
+    margin: 20,
+  },
+
   buttonContainer: {
     marginTop: 16,
     justifyContent: "center",
     alignItems: "center",
   },
+
   toggleButton: {
     backgroundColor: "#b58df1",
     padding: 12,
@@ -207,9 +204,9 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   playerName: {
-    fontSize: 24,
+    fontSize: 18,
     color: "#fff",
   },
 });
 
-export default Entrance;
+export default Pyramid;
